@@ -4,21 +4,26 @@ const app = express();
 
 const regexpParser = /^(?<separator>.)(?<body>.*)\1(?<flags>\w*)$/;
 
-app.get('/', async ({query}, res) => {
-    let response = await fetch(query.url, {
-        ...query,
-        headers: query.headers ? JSON.parse(query.headers) : undefined
+app.get('/', async (req, res) => {
+    let response = await fetch(req.query.url, {
+        ...req.query,
+        headers: req.query.headers ? JSON.parse(req.query.headers) : undefined
     });
     let text = await response.text();
-    if (query.replacements) {
-        let replacements = JSON.parse(query.replacements);
+    req.fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+    if (req.query.replacements) {
+        let replacements = JSON.parse(req.query.replacements);
         for (let find in replacements) {
             let replace = replacements[find];
-            if (query.regexp === "true") {
+            if (req.query.regex === "true") {
                 let match = find.match(regexpParser);
                 find = new RegExp(match.groups.body, match.groups.flags);
             }
-            text = text.replace(find, replace);
+            text = text.replace(find, replace
+                .replace(/(?<=(?<!\$)(?:\$\$)*)\$<(\w+)>/g, (match, $1) => {
+                    return String(req[$1])
+                        .replaceAll("$", "$$$$")
+                }));
         }
     }
     res.status(response.status);
