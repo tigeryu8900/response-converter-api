@@ -27,7 +27,7 @@ app.get('/', async (req, res) => {
         }
     }
     res.status(response.status);
-    response.headers.forEach((key, value) => {
+    response.headers.forEach((value, key) => {
         try {
             res.set(key, value);
         } catch (e) {
