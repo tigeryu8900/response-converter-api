@@ -70,12 +70,13 @@ app.all("*", async (req, res) => {
             referrerPolicy: options.referrerPolicy ?? req.referrerPolicy,
             integrity: options.integrity ?? req.integrity,
         });
+        req.fullUrl = `${options.protocol ?? req.protocol}://${req.get("host")}${req.originalUrl}`;
         let data;
         if (options.replacements &&
             ["text", "application"].includes(response.headers.get("content-type")?.split("/")[0] ?? "text")) {
             data = await response.text();
-            for (let [find, replace] in Object.entries(options.replacements)) {
-                if (options.regex) {
+            for (let [find, replace] of Object.entries(options.replacements)) {
+                if (options.regex && !(find instanceof RegExp)) {
                     let match = find.match(regexpParser);
                     find = new RegExp(match.groups.body, match.groups.flags);
                 }
