@@ -23,7 +23,7 @@ app.all("*", async (req, res) => {
         let { options, url } = await new Promise((resolve, reject) => {
             if (match) {
                 try {
-                    let options = JSON.parse(match.options ?? "{}");
+                    let options = JSON.parse(decodeURIComponent(match.options ?? "{}"));
                     let url = new URL(match.url);
                     if (!/[.:]/.test(url.host)) {
                         let referer = req.headers.referer ?? req.headers.origin;
