@@ -4,11 +4,12 @@ const app = express();
 
 const regexpParser = /^(?<separator>.)(?<body>.*)\1(?<flags>\w*)$/;
 
-app.get('/', async (req, res) => {
+app.all('/', async (req, res) => {
     try {
         let response = await fetch(req.query.url, {
+            method: req.method,
             ...req.query,
-            headers: req.query.headers ? JSON.parse(req.query.headers) : undefined
+            headers: req.headers
         });
         let text = await response.text();
         req.fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
