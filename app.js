@@ -35,6 +35,15 @@ app.get('/', async (req, res) => {
                 console.error(e);
             }
         });
+        if (req.query.headers) {
+            for (let [key, value] of Object.entries(JSON.parse(req.query.headers))) {
+                try {
+                    res.set(key, String(value));
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
         res.send(text);
     } catch (e) {
         console.error(e);
