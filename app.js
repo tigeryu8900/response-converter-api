@@ -1,6 +1,18 @@
 import express from "express";
 
 const app = express();
+app.use (function(req, res, next) {
+    let data= "";
+    req.setEncoding("utf8");
+    req.on("data", function(chunk) {
+        data += chunk;
+    });
+
+    req.on('end', function() {
+        req.body = data ? data : null;
+        next();
+    });
+});
 
 const regexpParser = /^(?<separator>.)(?<body>.*)\1(?<flags>\w*)$/;
 
@@ -9,7 +21,8 @@ app.all('/', async (req, res) => {
         let response = await fetch(req.query.url, {
             method: req.method,
             ...req.query,
-            headers: req.headers
+            headers: req.headers,
+            body: req.body
         });
         let text = await response.text();
         req.fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
