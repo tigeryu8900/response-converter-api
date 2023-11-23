@@ -144,9 +144,9 @@ app.all("*", async (req, res) => {
         console.error(req.path, e);
         res.status(500);
         if (e instanceof Error) {
-            res.send(e.stack);
+            res.send(req.originalUrl + "\n" + e.stack);
         } else {
-            res.send(e?.message || e?.name || e);
+            res.send(req.originalUrl + "\n" + (e?.message || e?.name || e));
         }
     }
 });
