@@ -110,6 +110,7 @@ app.all("*", async (req, res) => {
                 }
             }
         }
+        if (options["auto-mime"]) res.contentType(String(url).split("/").pop());
         res.send(Buffer.from(data));
     } catch (e) {
         console.error(req.path, e);
