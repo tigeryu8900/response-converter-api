@@ -18,12 +18,12 @@ const regexpParser = /^(?<separator>.)(?<body>.*)\1(?<flags>\w*)$/;
 
 function parseOptions(str) {
     try {
-        return atob(decodeURIComponent(str ?? "")
+        str = decodeURIComponent(str ?? "");
+        str = atob(str
             .replace(/-/g, "+")
             .replace(/[_,]/g, "/"));
-    } catch (e) {
-        return JSON.parse(decodeURIComponent(str ?? "{}"));
-    }
+    } catch (e) {}
+    return str.length ? JSON.parse(str) : {};
 }
 
 function merge(target, source) {
