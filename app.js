@@ -16,6 +16,16 @@ app.use (function(req, res, next) {
 
 const regexpParser = /^(?<separator>.)(?<body>.*)\1(?<flags>\w*)$/;
 
+function parseOptions(str) {
+    try {
+        return atob(decodeURIComponent(str ?? "")
+            .replace(/-/g, "+")
+            .replace(/[_,]/g, "/"));
+    } catch (e) {
+        return JSON.parse(decodeURIComponent(str ?? "{}"));
+    }
+}
+
 function merge(target, source) {
     // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
     for (const key of Object.keys(source)) {
@@ -34,7 +44,7 @@ app.all("*", async (req, res) => {
         let { options, url } = await new Promise((resolve, reject) => {
             if (match) {
                 try {
-                    let options = JSON.parse(decodeURIComponent(match.options ?? "{}"));
+                    let options = parseOptions(match.options);
                     let url = new URL(match.url);
                     if (!/[.:]/.test(url.host)) {
                         let referer = req.headers.referer ?? req.headers.origin;
