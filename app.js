@@ -16,6 +16,17 @@ app.use (function(req, res, next) {
 
 const regexpParser = /^(?<separator>.)(?<body>.*)\1(?<flags>\w*)$/;
 
+function merge(target, source) {
+    // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
+    for (const key of Object.keys(source)) {
+        if (source[key] instanceof Object) Object.assign(source[key], merge(target[key], source[key]))
+    }
+
+    // Join `target` and modified `source`
+    Object.assign(target || {}, source)
+    return target
+}
+
 //'/:options/:url([\\w\\W]*)'
 app.all("*", async (req, res) => {
     try {
@@ -56,6 +67,13 @@ app.all("*", async (req, res) => {
             let url = new URL(req.path, referer);
             return { options: {}, url };
         });
+        if (options.use) {
+            let other;
+            do {
+                other = await (await fetch(options.use)).json();
+                options = merge({ ...await (await fetch(options.use)).json() }, options);
+            } while (other.use);
+        }
         let response = await fetch(url, {
             method: options.method ?? req.method,
             headers: {
