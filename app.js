@@ -45,7 +45,7 @@ app.all("*", async (req, res) => {
             if (match) {
                 try {
                     let options = parseOptions(match.options);
-                    let url = new URL(match.url);
+                    let url = new URL(match.url.replace(/(?<=^https?):?\/+/, "://"));
                     if (!/[.:]/.test(url.host)) {
                         let referer = req.headers.referer ?? req.headers.origin;
                         if (referer) {
